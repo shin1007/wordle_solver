@@ -103,6 +103,7 @@ document.querySelectorAll('#input-section .cell').forEach(cell => {
         // 既に文字が入っているセルをクリックした場合
         if (cell.textContent.trim() !== '') {
             changeCellColor(cell);
+            cancelEditing(row);
         } else { // 空のセルをクリックした場合
             // クリックされた行が現在入力中でなければ、入力モードを開始
             if (!row.classList.contains('editing')) {
