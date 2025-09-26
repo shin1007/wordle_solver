@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wordle Solver</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+</head>
+
+<body>
+    <div class="container">
+        <div id="input-section">
+            <div class="row">
+                <div class="cell">s</div>
+                <div class="cell">l</div>
+                <div class="cell">a</div>
+                <div class="cell">t</div>
+                <div class="cell">e</div>
+            </div>
+            <div class="row">
+                <div class="cell">c</div>
+                <div class="cell">r</div>
+                <div class="cell">o</div>
+                <div class="cell">n</div>
+                <div class="cell">y</div>
+            </div>
+            <div class="row">
+                <div class="cell">h</div>
+                <div class="cell">u</div>
+                <div class="cell">m</div>
+                <div class="cell">i</div>
+                <div class="cell">d</div>
+            </div>
+            <div class="row">
+                <div class="cell"></div>
+                <div class="cell"></div>
+                <div class="cell"></div>
+                <div class="cell"></div>
+                <div class="cell"></div>
+            </div>
+            <div class="row">
+                <div class="cell"></div>
+                <div class="cell"></div>
+                <div class="cell"></div>
+                <div class="cell"></div>
+                <div class="cell"></div>
+            </div>
+        </div>
+
+        <div id="solution-section">
+            <div id="solution-grid">
+                <div class="green-row">
+                    <div class="cell green"></div>
+                    <div class="cell green"></div>
+                    <div class="cell green"></div>
+                    <div class="cell green"></div>
+                    <div class="cell green"></div>
+                </div>
+                <div class="yellow-row">
+                    <div class="cell yellow"></div>
+                    <div class="cell yellow"></div>
+                    <div class="cell yellow"></div>
+                    <div class="cell yellow"></div>
+                    <div class="cell yellow"></div>
+                </div>
+            </div>
+            <div id="answer-section">
+                <button id="possible-words-count-btn" class="possible-words-count-btn">
+                    <span id="word-count">see 0 possible words</span>
+                </button>
+                <div id="word-list-container" class="hidden">
+                </div>
+            </div>
+            <button id="play-ads-btn" class="play-ads-btn hidden">play ad when solved</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
