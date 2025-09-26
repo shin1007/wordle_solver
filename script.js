@@ -201,13 +201,7 @@ function handleKeyInput(event) {
     const { key } = event;
     const cells = activeInputRow.querySelectorAll('.cell');
 
-    if (key.match(/^[a-zA-Z]$/) && currentInputPosition < 5) {
-        cells[currentInputPosition].textContent = key;
-        currentInputPosition++;
-        if (currentInputPosition === 5) {
-            validateAndFixWord(activeInputRow);
-        }
-    } else if (key === 'Backspace' && currentInputPosition > 0) {
+    if (key === 'Backspace' && currentInputPosition > 0) {
         currentInputPosition--;
         cells[currentInputPosition].textContent = '';
     } else if (key === 'Enter' && currentInputPosition === 5) {
@@ -223,17 +217,22 @@ function handleSoftwareKeyInput(event) {
 
     const cells = activeInputRow.querySelectorAll('.cell');
     const inputType = event.inputType;
+    const data = event.data;
 
-    if (inputType === 'insertText') {
-        const char = event.data.toLowerCase();
-        if (char.match(/^[a-z]$/) && currentInputPosition < 5) {
-            cells[currentInputPosition].textContent = char;
-            currentInputPosition++;
-            if (currentInputPosition === 5) {
-                validateAndFixWord(activeInputRow);
+    // 物理キーボードとソフトウェアキーボード両方の文字入力を処理
+    if (inputType === 'insertText' && data) {
+        // 1文字ずつ処理
+        for (const char of data.toLowerCase()) {
+            if (char.match(/^[a-z]$/) && currentInputPosition < 5) {
+                cells[currentInputPosition].textContent = char;
+                currentInputPosition++;
+                if (currentInputPosition === 5) {
+                    validateAndFixWord(activeInputRow);
+                }
             }
         }
     }
+
     hiddenInput.value = ''; // inputを常に空にしておく
 }
 
