@@ -3,6 +3,7 @@ const wordCountSpan = document.getElementById('word-count');
 const wordListContainer = document.getElementById('word-list-container');
 const possibleWordsCountButton = document.getElementById('possible-words-count-btn');
 const answerSection = document.getElementById('answer-section');
+const hiddenInput = document.getElementById('hidden-input');
 
 let activeInputRow = null;
 let currentInputPosition = 0;
@@ -117,6 +118,8 @@ function startEditing(row, isReEdit = false) {
     if (activeInputRow && activeInputRow !== row) {
         cancelEditing();
     }
+    // スマホのキーボードをアクティベートするために非表示inputにフォーカス
+    hiddenInput.focus();
     // 固定された行は編集しない
     if (row.classList.contains('fixed') && !isReEdit) return;
 
@@ -142,6 +145,7 @@ function startEditing(row, isReEdit = false) {
 
 // 行の編集をキャンセルする関数
 function cancelEditing() {
+    hiddenInput.blur(); // フォーカスを外してキーボードを閉じる
     if (!activeInputRow) return;
 
     if (originalWordBeforeEdit) {
@@ -191,6 +195,7 @@ function validateAndFixWord(row) {
 
 // キー入力を処理する関数
 function handleKeyInput(event) {
+    // 物理キーボード用の処理
     if (!activeInputRow) return;
 
     const { key } = event;
@@ -210,6 +215,26 @@ function handleKeyInput(event) {
     } else if (key === 'Escape') {
         cancelEditing();
     }
+}
+
+// スマホのソフトウェアキーボードからの入力を処理する関数
+function handleSoftwareKeyInput(event) {
+    if (!activeInputRow) return;
+
+    const cells = activeInputRow.querySelectorAll('.cell');
+    const inputType = event.inputType;
+
+    if (inputType === 'insertText') {
+        const char = event.data.toLowerCase();
+        if (char.match(/^[a-z]$/) && currentInputPosition < 5) {
+            cells[currentInputPosition].textContent = char;
+            currentInputPosition++;
+            if (currentInputPosition === 5) {
+                validateAndFixWord(activeInputRow);
+            }
+        }
+    }
+    hiddenInput.value = ''; // inputを常に空にしておく
 }
 
 // 候補単語を絞り込む関数
@@ -431,12 +456,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     await fetchWordList(); // 単語リストの取得を待つ
     initializeGrid();      // グリッドを初期化する
 
-    // キーボード入力イベントリスナーを追加
+    // 物理キーボード入力イベントリスナーを追加
     document.addEventListener('keydown', handleKeyInput);
+    // ソフトウェアキーボード入力イベントリスナーを追加
+    hiddenInput.addEventListener('input', handleSoftwareKeyInput);
 
     // グリッド外クリックで編集をキャンセルするイベントリスナー
     document.addEventListener('click', (event) => {
-        if (activeInputRow && !event.target.closest('#input-section')) {
+        // クリックされた要素が入力セクションやその子孫でない場合に編集をキャンセル
+        if (activeInputRow && !event.target.closest('.container')) {
             cancelEditing();
         }
     });

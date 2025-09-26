@@ -216,6 +216,19 @@ body {
     }
 }
 
+/* スマホキーボード用の非表示input */
+#hidden-input {
+    position: absolute;
+    top: -100px;
+    left: -100px;
+    width: 0;
+    height: 0;
+    opacity: 0;
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+
 /* 広告後画面のスタイル */
 .end-screen {
     display: flex;
