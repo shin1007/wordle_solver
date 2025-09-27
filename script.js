@@ -484,9 +484,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             clearTimeout(pressTimer);
         };
 
+        // マウスイベント
         row.addEventListener('mousedown', startPress);
         row.addEventListener('mouseup', cancelPress);
         row.addEventListener('mouseleave', cancelPress);
+
+        // タッチイベント
+        row.addEventListener('touchstart', startPress);
+        row.addEventListener('touchend', cancelPress);
+        row.addEventListener('touchcancel', cancelPress);
     });
 });
 
