@@ -126,7 +126,7 @@ function startEditing(row, isReEdit = false) {
         row.classList.remove('fixed');
         // 行の文字をクリアして、先頭から入力できるようにする
         row.querySelectorAll('.cell').forEach(cell => {
-            cell.textContent = '';
+            cell.textContent = null;
             // 背景色をリセットするために、色クラスを削除
             cell.classList.remove('gray', 'yellow', 'green');
         });
