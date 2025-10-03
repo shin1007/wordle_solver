@@ -100,13 +100,15 @@ function changeCellColor(cell) {
 document.querySelectorAll('#input-section .cell').forEach(cell => {
     cell.addEventListener('click', (event) => {
         const row = cell.parentElement;
-        if (row.classList.contains('editing')) startEditing; // 編集中の行はキャンセルしない
+        // 編集中の行はキャンセルしない
+        if (row.classList.contains('editing')) {
+            startEditing; 
         // 既に文字が入っているセルをクリックした場合
-        if (cell.textContent.trim() !== '') {
+        } else if (cell.textContent.trim() !== '') {
             changeCellColor(cell);
             cancelEditing(row);
-        } else { // 空のセルをクリックした場合
-            // クリックされた行が現在入力中でなければ、入力モードを開始
+        // 空のセルをクリックした場合
+        } else {
             startEditing(row);
         }
     });
@@ -114,6 +116,7 @@ document.querySelectorAll('#input-section .cell').forEach(cell => {
 
 // 行の編集を開始する関数
 function startEditing(row, isReEdit = false) {
+    console.log('startEditing called', isReEdit);
     // 他の行が編集中ならキャンセル
     if (activeInputRow && activeInputRow !== row) {
         cancelEditing();
@@ -132,7 +135,6 @@ function startEditing(row, isReEdit = false) {
             cell.classList.remove('gray', 'yellow', 'green');
         });
     } else {
-        // if(row.classList.contains('fixed')) return; // 固定された行は編集しない
         originalWordBeforeEdit = ''; // 新規入力の場合は空
     }
 
