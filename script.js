@@ -104,7 +104,7 @@ document.querySelectorAll('#input-section .cell').forEach(cell => {
         if (row.classList.contains('editing')) {
             startEditing; 
         // 既に文字が入っているセルをクリックした場合
-        } else if (cell.textContent.trim() !== '') {
+        } else if (cell.textContent.trim().length > 0) {
             changeCellColor(cell);
             cancelEditing(row);
         // 空のセルをクリックした場合
@@ -116,13 +116,12 @@ document.querySelectorAll('#input-section .cell').forEach(cell => {
 
 // 行の編集を開始する関数
 function startEditing(row, isReEdit = false) {
-    console.log('startEditing called', isReEdit);
     // 他の行が編集中ならキャンセル
     if (activeInputRow && activeInputRow !== row) {
         cancelEditing();
     }
     activeInputRow = row;
-    if (isReEdit) {
+    // if (isReEdit) {
         // 再編集の場合、元の単語を保存し、fixedクラスを削除
         if (originalWordBeforeEdit.length === 0) {
             originalWordBeforeEdit = Array.from(row.children).map(cell => cell.textContent).join('');
@@ -134,9 +133,9 @@ function startEditing(row, isReEdit = false) {
             // 背景色をリセットするために、色クラスを削除
             cell.classList.remove('gray', 'yellow', 'green');
         });
-    } else {
-        originalWordBeforeEdit = ''; // 新規入力の場合は空
-    }
+    // } else {
+    //     originalWordBeforeEdit = ''; // 新規入力の場合は空
+    // }
 
     currentInputPosition = 0; // 常に先頭から入力開始
 
