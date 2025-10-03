@@ -119,8 +119,6 @@ function startEditing(row, isReEdit = false) {
     if (activeInputRow && activeInputRow !== row) {
         cancelEditing();
     }
-    // スマホのキーボードをアクティベートするために非表示inputにフォーカス
-    hiddenInput.focus();
     // 固定された行は編集しない
     if (row.classList.contains('fixed') && !isReEdit) return;
 
@@ -142,6 +140,8 @@ function startEditing(row, isReEdit = false) {
     currentInputPosition = 0; // 常に先頭から入力開始
 
     row.classList.add('editing');
+    // スマホのキーボードをアクティベートするために非表示inputにフォーカス
+    hiddenInput.focus();
 }
 
 // 行の編集をキャンセルする関数
