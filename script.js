@@ -119,8 +119,6 @@ function startEditing(row, isReEdit = false) {
     if (activeInputRow && activeInputRow !== row) {
         cancelEditing();
     }
-    // 固定された行は編集しない
-    if (row.classList.contains('fixed') && !isReEdit) return;
 
     if (isReEdit) {
         // 再編集の場合、元の単語を保存し、fixedクラスを削除
@@ -133,6 +131,7 @@ function startEditing(row, isReEdit = false) {
             cell.classList.remove('gray', 'yellow', 'green');
         });
     } else {
+        if(row.classList.contains('fixed')) return; // 固定された行は編集しない
         originalWordBeforeEdit = ''; // 新規入力の場合は空
     }
 
