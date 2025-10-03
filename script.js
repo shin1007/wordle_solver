@@ -131,7 +131,7 @@ function startEditing(row, isReEdit = false) {
             cell.classList.remove('gray', 'yellow', 'green');
         });
     } else {
-        if(row.classList.contains('fixed')) return; // 固定された行は編集しない
+        // if(row.classList.contains('fixed')) return; // 固定された行は編集しない
         originalWordBeforeEdit = ''; // 新規入力の場合は空
     }
 
