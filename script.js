@@ -103,6 +103,7 @@ document.querySelectorAll('#input-section .cell').forEach(cell => {
         // 既に文字が入っているセルをクリックした場合
         if (cell.textContent.trim() !== '') {
             changeCellColor(cell);
+            if (row.classList.contains('editing')) return; // 編集中の行はキャンセルしない
             cancelEditing(row);
         } else { // 空のセルをクリックした場合
             // クリックされた行が現在入力中でなければ、入力モードを開始
@@ -119,7 +120,7 @@ function startEditing(row, isReEdit = false) {
     if (activeInputRow && activeInputRow !== row) {
         cancelEditing();
     }
-
+    activeInputRow = row;
     if (isReEdit) {
         // 再編集の場合、元の単語を保存し、fixedクラスを削除
         originalWordBeforeEdit = Array.from(row.children).map(cell => cell.textContent).join('');
@@ -135,7 +136,6 @@ function startEditing(row, isReEdit = false) {
         originalWordBeforeEdit = ''; // 新規入力の場合は空
     }
 
-    activeInputRow = row;
     currentInputPosition = 0; // 常に先頭から入力開始
 
     row.classList.add('editing');
