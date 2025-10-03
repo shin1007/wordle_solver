@@ -102,7 +102,7 @@ document.querySelectorAll('#input-section .cell').forEach(cell => {
         const row = cell.parentElement;
         // 編集中の行はキャンセルしない
         if (row.classList.contains('editing')) {
-            startEditing; 
+            startEditing(row); 
         // 既に文字が入っているセルをクリックした場合
         } else if (cell.textContent.trim().length > 0) {
             changeCellColor(cell);
@@ -115,30 +115,27 @@ document.querySelectorAll('#input-section .cell').forEach(cell => {
 });
 
 // 行の編集を開始する関数
-function startEditing(row, isReEdit = false) {
+function startEditing(row) {
     // 他の行が編集中ならキャンセル
     if (activeInputRow && activeInputRow !== row) {
         cancelEditing();
     }
-    activeInputRow = row;
-    // if (isReEdit) {
-        // 再編集の場合、元の単語を保存し、fixedクラスを削除
-        if (originalWordBeforeEdit.length === 0) {
-            originalWordBeforeEdit = Array.from(row.children).map(cell => cell.textContent).join('');
-        };
-        row.classList.remove('fixed');
-        // 行の文字をクリアして、先頭から入力できるようにする
-        row.querySelectorAll('.cell').forEach(cell => {
-            cell.textContent = null;
-            // 背景色をリセットするために、色クラスを削除
-            cell.classList.remove('gray', 'yellow', 'green');
-        });
-    // } else {
-    //     originalWordBeforeEdit = ''; // 新規入力の場合は空
-    // }
+    // 再編集の場合、元の単語を保存し、fixedクラスを削除
+    if (originalWordBeforeEdit.length === 0) {
+        originalWordBeforeEdit = Array.from(row.children).map(cell => cell.textContent).join('');
+    };
 
+    // 行の文字をクリアして、先頭から入力できるようにする
+    row.querySelectorAll('.cell').forEach(cell => {
+        cell.textContent = null;
+        // 背景色をリセットするために、色クラスを削除
+        cell.classList.remove('gray', 'yellow', 'green');
+    });
+
+    activeInputRow = row;
     currentInputPosition = 0; // 常に先頭から入力開始
 
+    row.classList.remove('fixed');
     row.classList.add('editing');
     // スマホのキーボードをアクティベートするために非表示inputにフォーカス
     hiddenInput.focus();
@@ -476,7 +473,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const startPress = (e) => {
             // 固定された行でのみ長押しを有効にする
             if (row.classList.contains('fixed')) {
-                pressTimer = window.setTimeout(() => startEditing(row, true), 800);
+                pressTimer = window.setTimeout(() => startEditing(row), 800);
             }
         };
 
