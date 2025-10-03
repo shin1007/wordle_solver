@@ -121,7 +121,7 @@ function startEditing(row, isReEdit = false) {
     activeInputRow = row;
     if (isReEdit) {
         // 再編集の場合、元の単語を保存し、fixedクラスを削除
-        if (originalWordBeforeEdit === ''){
+        if (originalWordBeforeEdit.length === 0) {
             originalWordBeforeEdit = Array.from(row.children).map(cell => cell.textContent).join('');
         };
         row.classList.remove('fixed');
