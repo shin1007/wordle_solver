@@ -100,10 +100,10 @@ function changeCellColor(cell) {
 document.querySelectorAll('#input-section .cell').forEach(cell => {
     cell.addEventListener('click', (event) => {
         const row = cell.parentElement;
+        if (row.classList.contains('editing')) return; // 編集中の行はキャンセルしない
         // 既に文字が入っているセルをクリックした場合
         if (cell.textContent.trim() !== '') {
             changeCellColor(cell);
-            if (row.classList.contains('editing')) return; // 編集中の行はキャンセルしない
             cancelEditing(row);
         } else { // 空のセルをクリックした場合
             // クリックされた行が現在入力中でなければ、入力モードを開始
