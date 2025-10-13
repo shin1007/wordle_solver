@@ -1,9 +1,19 @@
+import {
+    CONSONANT_SCORES,
+    VOWEL_SCORES,
+    sortByUniqueVowel,
+    sortWordsByVowelScore,
+    sortWordsByConsonantScore,
+    sortByConsonantCount as sortByUniqueConsonant
+} from './letterRanking.js';
+
 const showAdsButton = document.getElementById('play-ads-btn');
 const wordCountSpan = document.getElementById('word-count');
 const wordListContainer = document.getElementById('word-list-container');
 const possibleWordsCountButton = document.getElementById('possible-words-count-btn');
 const answerSection = document.getElementById('answer-section');
 const hiddenInput = document.getElementById('hidden-input');
+
 
 let activeInputRow = null;
 let currentInputPosition = 0;
@@ -14,10 +24,8 @@ let possibleWords = [];
 // 単語リストを取得する関数
 async function fetchWordList() {
     try {
-        const url1 = "https://gist.githubusercontent.com/dracos/dd0668f281e685bad51479e5acaadb93/raw/d236968031d04426514f79e5acaadb93/wordle_solutions_2022.txt"
-        const url2 = "https://gist.githubusercontent.com/dracos/dd0668f281e685bad51479e5acaadb93/raw/d236968031d04426514f79e5acaadb93/wordle_solutions_2022.txt"
-        const url3 = 'https://gist.githubusercontent.com/dracos/dd0668f281e685bad51479e5acaadb93/raw/6bfa15d263d6d5b63840a8e5b64e04b382fdb079/valid-wordle-words.txt'
-        const response = await fetch(url3);
+        const url = 'https://gist.githubusercontent.com/dracos/dd0668f281e685bad51479e5acaadb93/raw/6bfa15d263d6d5b63840a8e5b64e04b382fdb079/valid-wordle-words.txt'
+        const response = await fetch(url);
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
@@ -271,6 +279,12 @@ function filterPossibleWords() {
     // 空文字列を取り除く
     filteredWords = filteredWords.filter(word => word.trim() !== '');
 
+    // 絞り込んだ単語を使いやすい単語順にソートして返す
+    filteredWords = sortWordsByVowelScore(filteredWords, false);
+    filteredWords = sortByUniqueVowel(filteredWords, false);
+    filteredWords = sortWordsByConsonantScore(filteredWords, false);
+    filteredWords = sortByUniqueConsonant(filteredWords, false);
+
     return filteredWords;
 }
 
@@ -446,6 +460,11 @@ function initializeGrid() {
     // 初期状態に基づいて候補単語と解答サマリーを更新
     displayPossibleWords();
     updateSolutionSection();
+
+    // --- letterRanking.jsの関数使用例 ---
+    // 候補単語を子音スコアの高い順にソートして表示
+    const sortedByConsonant = sortWordsByConsonantScore(possibleWords);
+    console.log('Words sorted by consonant score (desc):', sortedByConsonant.slice(0, 10)); // 上位10件を表示
 }
 
 // アプリケーション起動時に単語リストを取得

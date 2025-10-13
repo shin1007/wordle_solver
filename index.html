@@ -80,7 +80,9 @@
     <!-- スマホのキーボード表示用の非表示input要素 -->
     <!-- 参考：https://beanslabo.co.jp/techblog/7432/#subHeading02-03 -->
     <input type="text" id="hidden-input" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false" type="url" inputmode="email">
-    <script src="script.js"></script>
+    <!-- type="module" を追加して、ESモジュールとしてスクリプトを読み込む -->
+    <script src="letterRanking.js" type="module"></script>
+    <script src="script.js" type="module"></script>
 </body>
 
 </html>
