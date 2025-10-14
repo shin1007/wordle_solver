@@ -133,6 +133,7 @@ function startEditing(row) {
         originalWordBeforeEdit = Array.from(row.children).map(cell => cell.textContent).join('');
     };
 
+    
     // 行の文字をクリアして、先頭から入力できるようにする
     row.querySelectorAll('.cell').forEach(cell => {
         cell.textContent = null;
