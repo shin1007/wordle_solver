@@ -149,6 +149,11 @@ function startEditing(row) {
     row.classList.add('editing');
     // スマホのキーボードをアクティベートするために非表示inputにフォーカス
     hiddenInput.focus();
+    // スマホのキーボードをアクティベートするために非表示inputにフォーカスする
+    // setTimeoutで処理を遅延させることで、他のイベントとの競合を避け、フォーカスを確実に当てる
+    setTimeout(() => {
+        hiddenInput.focus();
+    }, 0);
 }
 
 // 行の編集をキャンセルする関数
