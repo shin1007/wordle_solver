@@ -112,10 +112,11 @@ document.querySelectorAll('#input-section .cell').forEach(cell => {
         if (isPressing) return; // 長押し操作の一部であれば、クリック処理を中断
 
         const row = cell.parentElement;
-        // 編集中の行のセルをクリックした場合は何もしない
-        if (row.classList.contains('editing')) return;
-
-        if (cell.textContent.trim().length > 0) {
+        // 編集中の行のセルをクリックした場合、キーボード表示のためにフォーカスを当てる
+        if (row.classList.contains('editing')) {
+            hiddenInput.focus();
+        // 既に文字が入っているセルをクリックした場合
+        } else if (cell.textContent.trim().length > 0) {
             changeCellColor(cell);
             cancelEditing(row);
         // 空のセルをクリックした場合
@@ -155,6 +156,13 @@ function cancelEditing() {
     hiddenInput.blur(); // フォーカスを外してキーボードを閉じる
     if (!activeInputRow) return;
 
+    // 5文字入力されていない場合のみキャンセル処理を実行
+    const word = Array.from(activeInputRow.children).map(cell => cell.textContent).join('');
+    if (word.length === 5) {
+        return; // 5文字入力完了時はキャンセルしない
+    }
+
+    hiddenInput.blur(); // フォーカスを外してキーボードを閉じる
     if (originalWordBeforeEdit) {
         // 再編集をキャンセルした場合は元の単語に戻す
         activeInputRow.querySelectorAll('.cell').forEach((cell, index) => {
@@ -506,6 +514,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const cancelPress = (e) => {
             clearTimeout(pressTimer);
             isPressing = false; // プレス終了
+            // 長押しが発火した場合は、isPressingをすぐにfalseにしない
             if (longPressTriggered) {
                 e.preventDefault(); // 長押し後のクリックイベントを抑制
             }
@@ -519,6 +528,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         // タッチイベント
         row.addEventListener('touchstart', startPress);
         row.addEventListener('touchend', cancelPress);
+        row.addEventListener('touchend', (e) => {
+            cancelPress(e);
+            isPressing = false; // touchendでisPressingをリセット
+        });
         row.addEventListener('touchcancel', cancelPress);
     });
 });
