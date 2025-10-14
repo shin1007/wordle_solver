@@ -132,10 +132,8 @@ function startEditing(row) {
     if (activeInputRow && activeInputRow !== row) {
         cancelEditing();
     }
-    // 再編集の場合、元の単語を保存し、fixedクラスを削除
-    if (originalWordBeforeEdit.length === 0) {
-        originalWordBeforeEdit = Array.from(row.children).map(cell => cell.textContent).join('');
-    };
+    // 再編集のために元の単語を保存する
+    originalWordBeforeEdit = Array.from(row.children).map(cell => cell.textContent).join('');
 
     // 行の文字をクリアして、先頭から入力できるようにする
     row.querySelectorAll('.cell').forEach(cell => {
