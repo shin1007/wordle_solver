@@ -153,7 +153,6 @@ function startEditing(row) {
 
 // 行の編集をキャンセルする関数
 function cancelEditing() {
-    hiddenInput.blur(); // フォーカスを外してキーボードを閉じる
     if (!activeInputRow) return;
 
     // 5文字入力されていない場合のみキャンセル処理を実行
@@ -513,7 +512,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const cancelPress = (e) => {
             clearTimeout(pressTimer);
-            isPressing = false; // プレス終了
             // 長押しが発火した場合は、isPressingをすぐにfalseにしない
             if (longPressTriggered) {
                 e.preventDefault(); // 長押し後のクリックイベントを抑制
@@ -527,7 +525,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // タッチイベント
         row.addEventListener('touchstart', startPress);
-        row.addEventListener('touchend', cancelPress);
         row.addEventListener('touchend', (e) => {
             cancelPress(e);
             isPressing = false; // touchendでisPressingをリセット
