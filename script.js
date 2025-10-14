@@ -104,13 +104,17 @@ function changeCellColor(cell) {
     updateSolutionSection();
 }
 
+let isPressing = false; // 長押し中かどうかを判定するフラグ
+
 // 各マスにクリックイベントを追加
 document.querySelectorAll('#input-section .cell').forEach(cell => {
     cell.addEventListener('click', (event) => {
+        if (isPressing) return; // 長押し操作の一部であれば、クリック処理を中断
+
         const row = cell.parentElement;
-        // 編集中の行はキャンセルしない
+        // 編集中の行のセルをクリックした場合、キーボード表示のためにフォーカスを当てる
         if (row.classList.contains('editing')) {
-            startEditing(row); 
+            hiddenInput.focus();
         // 既に文字が入っているセルをクリックした場合
         } else if (cell.textContent.trim().length > 0) {
             changeCellColor(cell);
@@ -492,7 +496,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         const startPress = (e) => {
             // 固定された行でのみ長押しを有効にする
             if (row.classList.contains('fixed')) {
-                pressTimer = window.setTimeout(() => startEditing(row), 800);
+                isPressing = true; // 長押し開始
+                pressTimer = window.setTimeout(() => startEditing(row), 500); // 800msから500msに短縮
             }
         };
 
