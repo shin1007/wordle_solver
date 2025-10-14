@@ -132,8 +132,10 @@ function startEditing(row) {
     if (activeInputRow && activeInputRow !== row) {
         cancelEditing();
     }
-    // 再編集のために元の単語を保存する
-    originalWordBeforeEdit = Array.from(row.children).map(cell => cell.textContent).join('');
+    // 再編集の場合、元の単語を保存し、fixedクラスを削除
+    if (originalWordBeforeEdit.length === 0) {
+        originalWordBeforeEdit = Array.from(row.children).map(cell => cell.textContent).join('');
+    };
 
     // 行の文字をクリアして、先頭から入力できるようにする
     row.querySelectorAll('.cell').forEach(cell => {
@@ -147,24 +149,15 @@ function startEditing(row) {
 
     row.classList.remove('fixed');
     row.classList.add('editing');
-    // スマホのキーボードをアクティベートするために非表示inputにフォーカスする
-    // setTimeoutで処理を遅延させることで、他のイベントとの競合を避け、フォーカスを確実に当てる
-    setTimeout(() => {
-        hiddenInput.focus();
-    }, 0);
+    // スマホのキーボードをアクティベートするために非表示inputにフォーカス
+    hiddenInput.focus();
 }
 
 // 行の編集をキャンセルする関数
 function cancelEditing() {
+    hiddenInput.blur(); // フォーカスを外してキーボードを閉じる
     if (!activeInputRow) return;
 
-    // 5文字入力されていない場合のみキャンセル処理を実行
-    const word = Array.from(activeInputRow.children).map(cell => cell.textContent).join('');
-    if (word.length === 5) {
-        return; // 5文字入力完了時はキャンセルしない
-    }
-
-    hiddenInput.blur(); // フォーカスを外してキーボードを閉じる
     if (originalWordBeforeEdit) {
         // 再編集をキャンセルした場合は元の単語に戻す
         activeInputRow.querySelectorAll('.cell').forEach((cell, index) => {
@@ -499,26 +492,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     // 各行に長押しイベントを追加
     document.querySelectorAll('#input-section .row').forEach(row => {
         let pressTimer;
-        let longPressTriggered = false; // 長押しが発火したかを追跡するフラグ
 
         const startPress = (e) => {
             // 固定された行でのみ長押しを有効にする
             if (row.classList.contains('fixed')) {
-                longPressTriggered = false; // プレス開始時にリセット
                 isPressing = true; // 長押し開始
-                pressTimer = window.setTimeout(() => {
-                    startEditing(row);
-                    longPressTriggered = true; // 長押しが発火したことを記録
-                }, 500);
+                pressTimer = window.setTimeout(() => startEditing(row), 500); // 800msから500msに短縮
             }
         };
 
-        const cancelPress = (e) => {
+        const cancelPress = () => {
             clearTimeout(pressTimer);
-            // 長押しが発火した場合は、isPressingをすぐにfalseにしない
-            if (longPressTriggered) {
-                e.preventDefault(); // 長押し後のクリックイベントを抑制
-            }
         };
 
         // マウスイベント
@@ -528,10 +512,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // タッチイベント
         row.addEventListener('touchstart', startPress);
-        row.addEventListener('touchend', (e) => {
-            cancelPress(e);
-            isPressing = false; // touchendでisPressingをリセット
-        });
+        row.addEventListener('touchend', cancelPress);
         row.addEventListener('touchcancel', cancelPress);
     });
 });
