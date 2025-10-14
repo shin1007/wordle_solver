@@ -112,11 +112,10 @@ document.querySelectorAll('#input-section .cell').forEach(cell => {
         if (isPressing) return; // 長押し操作の一部であれば、クリック処理を中断
 
         const row = cell.parentElement;
-        // 編集中の行のセルをクリックした場合、キーボード表示のためにフォーカスを当てる
-        if (row.classList.contains('editing')) {
-            hiddenInput.focus();
-        // 既に文字が入っているセルをクリックした場合
-        } else if (cell.textContent.trim().length > 0) {
+        // 編集中の行のセルをクリックした場合は何もしない
+        if (row.classList.contains('editing')) return;
+
+        if (cell.textContent.trim().length > 0) {
             changeCellColor(cell);
             cancelEditing(row);
         // 空のセルをクリックした場合
