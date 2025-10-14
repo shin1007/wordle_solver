@@ -9,31 +9,25 @@ export const VOWEL_SCORES = {
     'e': 5, 'a': 4, 'o': 3, 'i': 2, 'u': 1
 };
 
-// #2
-// 母音の出現頻度をカウント
-// 同じ単語内に複数回登場する際は1回とする
-// 昇順
-export function sortByUniqueVowel(words, ascending = true) {
-    const vowelCount = {};
+/**
+ * 単語に含まれるユニークな母音の数で単語をソートします。
+ * @param {string[]} words - ソート対象の単語リスト
+ * @param {boolean} ascending - trueなら昇順、falseなら降順
+ * @returns {string[]} ソートされた単語リスト
+ */
+export function sortWordsByUniqueVowelCount(words, ascending = false) {
     const vowels = 'aeiou';
-    words.forEach(word => {
-        const uniqueVowels = new Set(word.split('').filter(char => vowels.includes(char)));
-        uniqueVowels.forEach(vowel => {
-            vowelCount[vowel] = (vowelCount[vowel] || 0) + 1;
-        });
-    });
-    // 出現頻度でソート
-    const sortedVowels = Object.entries(vowelCount)
-        .sort((a, b) => a[1] - b[1])
-        .map(entry => entry[0]);
+    return words.slice().sort((a, b) => {
+        const countA = new Set(a.split('').filter(char => vowels.includes(char))).size;
+        const countB = new Set(b.split('').filter(char => vowels.includes(char))).size;
+        const diff = countA - countB;
     if (ascending) {
-        return sortedVowels;
+            return diff;
     }
-    sortedVowels.reverse();
-    return sortedVowels;
+        return -diff;
+    });
 }
 
-// #2
 // 母音スコアの合計でソート
 export function sortWordsByVowelScore(words, ascending = true) {
     return words.slice().sort((a, b) => {
@@ -42,11 +36,10 @@ export function sortWordsByVowelScore(words, ascending = true) {
         if (ascending) {
             return scoreA - scoreB; // 昇順
         }
-        return -(scoreB - scoreA); // 昇順
+        return scoreB - scoreA; // 降順
     });
 }
 
-// #3
 // 子音スコアの合計でソート
 export function sortWordsByConsonantScore(words, ascending = false) {
     return words.slice().sort((a, b) => {
@@ -59,26 +52,21 @@ export function sortWordsByConsonantScore(words, ascending = false) {
     });
 }
 
-// #4
-// 子音の出現頻度をカウント
-// 同じ単語内に複数回登場する際は1回とする
-// 降順
-export function sortByConsonantCount(words, ascending = false) {
-    const consonantCount = {};
+/**
+ * 単語に含まれるユニークな子音の数で単語をソートします。
+ * @param {string[]} words - ソート対象の単語リスト
+ * @param {boolean} ascending - trueなら昇順、falseなら降順
+ * @returns {string[]} ソートされた単語リスト
+ */
+export function sortWordsByUniqueConsonantCount(words, ascending = false) {
     const consonants = 'bcdfghjklmnpqrstvwxyz';
-    words.forEach(word => {
-        const uniqueConsonants = new Set(word.split('').filter(char => consonants.includes(char)));
-        uniqueConsonants.forEach(char => {
-            consonantCount[char] = (consonantCount[char] || 0) + 1;
-        });
-    });
-    // 出現頻度でソート
-    const sortedConsonants = Object.entries(consonantCount)
-        .sort((a, b) => b[1] - a[1])
-        .map(entry => entry[0]);
+    return words.slice().sort((a, b) => {
+        const countA = new Set(a.split('').filter(char => consonants.includes(char))).size;
+        const countB = new Set(b.split('').filter(char => consonants.includes(char))).size;
+        const diff = countA - countB;
         if (ascending) {
-        return sortedConsonants;
+            return diff;
     }
-    sortedConsonants.reverse();
-    return sortedConsonants;
+        return -diff;
+    });
 }

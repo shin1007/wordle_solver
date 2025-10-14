@@ -1,10 +1,10 @@
 import {
     CONSONANT_SCORES,
     VOWEL_SCORES,
-    sortByUniqueVowel,
+    sortWordsByUniqueVowelCount,
     sortWordsByVowelScore,
     sortWordsByConsonantScore,
-    sortByConsonantCount as sortByUniqueConsonant
+    sortWordsByUniqueConsonantCount
 } from './letterRanking.js';
 
 const showAdsButton = document.getElementById('play-ads-btn');
@@ -281,9 +281,9 @@ function filterPossibleWords() {
 
     // 絞り込んだ単語を使いやすい単語順にソートして返す
     filteredWords = sortWordsByVowelScore(filteredWords, false);
-    filteredWords = sortByUniqueVowel(filteredWords, false);
+    filteredWords = sortWordsByUniqueVowelCount(filteredWords, false);
     filteredWords = sortWordsByConsonantScore(filteredWords, false);
-    filteredWords = sortByUniqueConsonant(filteredWords, false);
+    filteredWords = sortWordsByUniqueConsonantCount(filteredWords, false);
 
     return filteredWords;
 }
