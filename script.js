@@ -492,17 +492,26 @@ document.addEventListener('DOMContentLoaded', async () => {
     // 各行に長押しイベントを追加
     document.querySelectorAll('#input-section .row').forEach(row => {
         let pressTimer;
+        let longPressTriggered = false; // 長押しが発火したかを追跡するフラグ
 
         const startPress = (e) => {
             // 固定された行でのみ長押しを有効にする
             if (row.classList.contains('fixed')) {
+                longPressTriggered = false; // プレス開始時にリセット
                 isPressing = true; // 長押し開始
-                pressTimer = window.setTimeout(() => startEditing(row), 500); // 800msから500msに短縮
+                pressTimer = window.setTimeout(() => {
+                    startEditing(row);
+                    longPressTriggered = true; // 長押しが発火したことを記録
+                }, 500);
             }
         };
 
-        const cancelPress = () => {
+        const cancelPress = (e) => {
             clearTimeout(pressTimer);
+            isPressing = false; // プレス終了
+            if (longPressTriggered) {
+                e.preventDefault(); // 長押し後のクリックイベントを抑制
+            }
         };
 
         // マウスイベント
