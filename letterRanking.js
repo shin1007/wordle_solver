@@ -11,6 +11,7 @@ export const VOWEL_SCORES = {
 
 /**
  * 単語に含まれるユニークな母音の数で単語をソートします。
+ * （特にハードモードでは）基本的に母音が少ないほうが絞りやすいので、降順がデフォルトです。
  * @param {string[]} words - ソート対象の単語リスト
  * @param {boolean} ascending - trueなら昇順、falseなら降順
  * @returns {string[]} ソートされた単語リスト
@@ -29,6 +30,8 @@ export function sortWordsByUniqueVowelCount(words, ascending = false) {
 }
 
 // 母音スコアの合計でソート
+// （特にハードモードでは）基本的に母音スコアが低いほうが絞りやすいので、昇順がデフォルトです。
+
 export function sortWordsByVowelScore(words, ascending = true) {
     return words.slice().sort((a, b) => {
         const scoreA = a.split('').reduce((sum, char) => sum + (VOWEL_SCORES[char] || 0), 0);
@@ -41,6 +44,7 @@ export function sortWordsByVowelScore(words, ascending = true) {
 }
 
 // 子音スコアの合計でソート
+// （特にハードモードでは）死因が多いほうが絞りやすいので、降順がデフォルトです。
 export function sortWordsByConsonantScore(words, ascending = false) {
     return words.slice().sort((a, b) => {
         const scoreA = a.split('').reduce((sum, char) => sum + (CONSONANT_SCORES[char] || 0), 0);
@@ -54,6 +58,7 @@ export function sortWordsByConsonantScore(words, ascending = false) {
 
 /**
  * 単語に含まれるユニークな子音の数で単語をソートします。
+ * （特にハードモードでは）死因が多いほうが絞りやすいので、降順がデフォルトです。
  * @param {string[]} words - ソート対象の単語リスト
  * @param {boolean} ascending - trueなら昇順、falseなら降順
  * @returns {string[]} ソートされた単語リスト
