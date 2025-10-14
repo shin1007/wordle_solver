@@ -5,7 +5,7 @@ export const CONSONANT_SCORES = {
     'h': 11, 'g': 10, 'b': 9, 'k': 8, 'w': 7, 'f': 6, 'v': 5, 'z': 4, 'j': 3, 'x': 2, 'q': 1
 };
 
-const VOWEL_SCORES = {
+export const VOWEL_SCORES = {
     'e': 5, 'a': 4, 'o': 3, 'i': 2, 'u': 1
 };
 
