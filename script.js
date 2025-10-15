@@ -108,13 +108,12 @@ function changeCellColor(cell) {
 document.querySelectorAll('#input-section .cell').forEach(cell => {
     cell.addEventListener('click', (event) => {
         const row = cell.parentElement;
-        // 編集中の行はキャンセルしない
-        if (row.classList.contains('editing')) {
-            startEditing(row); 
         // 既に文字が入っているセルをクリックした場合
-        } else if (cell.textContent.trim().length > 0) {
+        if (cell.textContent.trim().length > 0 && !row.classList.contains('editing')) {
             changeCellColor(cell);
-            cancelEditing(row);
+        // 編集中の行のセルをクリックした場合
+        } else if (row.classList.contains('editing')) {
+            // 編集中の操作はキーボード入力に任せるため、何もしない
         // 空のセルをクリックした場合
         } else {
             startEditing(row);
