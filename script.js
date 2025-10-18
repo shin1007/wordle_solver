@@ -104,6 +104,7 @@ function changeCellColor(cell) {
     updateSolutionSection();
 }
 
+
 // 各マスにクリックイベントを追加
 document.querySelectorAll('#input-section .cell').forEach(cell => {
     cell.addEventListener('click', (event) => {
