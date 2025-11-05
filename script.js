@@ -362,6 +362,16 @@ function displayPossibleWords() {
     //     answerSection.style.setProperty('--answer-height', '59%');
     // }
 }
+function addSelectedWordToInput(word) {
+    if (!activeInputRow) return;
+    const cells = activeInputRow.querySelectorAll('.cell');
+    for (let i = 0; i < 5; i++) {
+        cells[i].textContent = word[i];
+    }
+    validateAndFixWord(activeInputRow);
+}
+
+// 解答セクションの高さを設定する関数
 function setAnswerSectionHeight() {
     const height = '--height'
     const actualHeight = wordListContainer.offsetHeight;
@@ -375,6 +385,12 @@ possibleWordsCountButton.addEventListener('click', (event) => {
 });
 // 候補リストの表示/非表示を切り替える
 wordListContainer.addEventListener('click', (event) => {
+    // クリックされた要素が単語アイテム(.word-item)の場合
+    if (event.target.classList.contains('word-item')) {
+        const selectedWord = event.target.textContent;
+        addSelectedWordToInput(selectedWord);
+    }
+    // 単語を選択した場合でも、背景をクリックした場合でもリストを非表示にする
     wordListContainer.classList.add('hidden');
     possibleWordsCountButton.classList.remove('hidden');
 });
