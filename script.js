@@ -368,7 +368,7 @@ function addSelectedWordToInput(word) {
     for (const row of rows) {
         const cells = row.querySelectorAll('.cell');
         let isEmpty = true;
-        for (cell of cells){
+        for (const cell of cells) {
             if (cell.classList.contains('gray')) {
                 isEmpty = false;
             }
