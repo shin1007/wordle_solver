@@ -363,7 +363,17 @@ function displayPossibleWords() {
     // }
 }
 function addSelectedWordToInput(word) {
-    if (!activeInputRow) return;
+    if (!activeInputRow) {
+        // 編集中の行がなければ、最初の空白行を編集モードにする
+        const rows = document.querySelectorAll('#input-section .row');
+        for (const row of rows) {
+            const isEmpty = Array.from(row.children).every(cell => cell.textContent.trim() === '');
+            if (isEmpty) {
+                startEditing(row);
+                break;
+            }
+        }
+    }
     const cells = activeInputRow.querySelectorAll('.cell');
     for (let i = 0; i < 5; i++) {
         cells[i].textContent = word[i];
