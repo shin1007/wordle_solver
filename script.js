@@ -469,6 +469,9 @@ function initializeGrid() {
 // アプリケーション起動時に単語リストを取得
 document.addEventListener('DOMContentLoaded', async () => {
     // スマホでの文字列選択を無効にする
+    document.body.style.webkitUserSelect = 'none';
+    document.body.style.mozUserSelect = 'none';
+    document.body.style.msUserSelect = 'none';
     document.body.style.userSelect = 'none';
 
     await fetchWordList(); // 単語リストの取得を待つ
