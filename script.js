@@ -124,10 +124,10 @@ document.querySelectorAll('#input-section .cell').forEach(cell => {
 
 // 行の編集を開始する関数
 function startEditing(row) {
-    // 他の行が編集中ならキャンセル
-    if (activeInputRow && activeInputRow !== row) {
-        cancelEditing();
-    }
+    // // 他の行が編集中ならキャンセル
+    // if (activeInputRow && activeInputRow !== row) {
+    //     cancelEditing();
+    // }
     // 再編集の場合、元の単語を保存し、fixedクラスを削除
     if (originalWordBeforeEdit.length === 0) {
         originalWordBeforeEdit = Array.from(row.children).map(cell => cell.textContent).join('');
