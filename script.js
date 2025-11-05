@@ -363,19 +363,23 @@ function displayPossibleWords() {
     // }
 }
 function addSelectedWordToInput(word) {
-    if (!activeInputRow) {
-        // 編集中の行がなければ、背景が白くなっている行を編集モードにする
-        const rows = document.querySelectorAll('#input-section .row');
-        for (const row of rows) {
-            if (row.classList.contains('gray')) {
-                continue;
+    // 編集中の行がなければ、背景が白くなっている行を編集モードにする
+    const rows = document.querySelectorAll('#input-section .row');
+    for (const row of rows) {
+        cells = row.querySelectorAll('.cell');
+        let isEmpty = true;
+        for (cell of cells){
+            if (cell.classList.contains('gray')) {
+                isEmpty = false;
             }
-            if (row.classList.contains('yellow')) {
-                continue;
+            if (cell.classList.contains('yellow')) {
+                isEmpty = false;
             }
-            if (row.classList.contains('green')) {
-                continue;
+            if (cell.classList.contains('green')) {
+                isEmpty = false;
             }
+        }
+        if (isEmpty) {
             startEditing(row);
             break;
         }
