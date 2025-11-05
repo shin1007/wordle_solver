@@ -364,12 +364,11 @@ function displayPossibleWords() {
 }
 function addSelectedWordToInput(word) {
     if (!activeInputRow) {
-        // 編集中の行がなければ、最初の空白行を編集モードにする
+        // 編集中の行がなければ、背景が白くなっている行を編集モードにする
         const rows = document.querySelectorAll('#input-section .row');
         for (const row of rows) {
-            const isEmpty = Array.from(row.children).every(cell => cell.textContent.trim() === '');
-            if (isEmpty) {
-                startEditing(row);
+            if (row.classList.contains('editing')) {
+                activeInputRow = row;
                 break;
             }
         }
