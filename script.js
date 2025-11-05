@@ -461,7 +461,6 @@ function initializeGrid() {
     displayPossibleWords();
     updateSolutionSection();
 
-    // --- letterRanking.jsの関数使用例 ---
     // 候補単語を子音スコアの高い順にソートして表示
     const sortedByConsonant = sortWordsByConsonantScore(possibleWords);
     console.log('Words sorted by consonant score (desc):', sortedByConsonant.slice(0, 10)); // 上位10件を表示
@@ -469,6 +468,9 @@ function initializeGrid() {
 
 // アプリケーション起動時に単語リストを取得
 document.addEventListener('DOMContentLoaded', async () => {
+    // スマホでの文字列選択を無効にする
+    document.body.style.userSelect = 'none';
+
     await fetchWordList(); // 単語リストの取得を待つ
     initializeGrid();      // グリッドを初期化する
 
