@@ -366,7 +366,7 @@ function addSelectedWordToInput(word) {
     // 編集中の行がなければ、背景が白くなっている行を編集モードにする
     const rows = document.querySelectorAll('#input-section .row');
     for (const row of rows) {
-        cells = row.querySelectorAll('.cell');
+        const cells = row.querySelectorAll('.cell');
         let isEmpty = true;
         for (cell of cells){
             if (cell.classList.contains('gray')) {
@@ -384,9 +384,9 @@ function addSelectedWordToInput(word) {
             break;
         }
     }
-    const cells = activeInputRow.querySelectorAll('.cell');
+    const inputCells = activeInputRow.querySelectorAll('.cell');
     for (let i = 0; i < 5; i++) {
-        cells[i].textContent = word[i];
+        inputCells[i].textContent = word[i];
     }
     validateAndFixWord(activeInputRow);
 }
