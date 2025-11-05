@@ -124,6 +124,7 @@ document.querySelectorAll('#input-section .cell').forEach(cell => {
 
 // 行の編集を開始する関数
 function startEditing(row) {
+    displayPossibleWords();
     // // 他の行が編集中ならキャンセル
     // if (activeInputRow && activeInputRow !== row) {
     //     cancelEditing();
