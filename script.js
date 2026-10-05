@@ -1,17 +1,13 @@
-import {
-    CONSONANT_SCORES,
-    VOWEL_SCORES,
-    sortWordsByUniqueVowelCount,
-    sortWordsByVowelScore,
-    sortWordsByConsonantScore,
-    sortWordsByUniqueConsonantCount
-} from './letterRanking.js';
+import { ANSWERS, ALLOWED } from './words.js';
+import { OPENING_RANKING, OPENING_RANKING_HARD } from './opening.js';
+import { colorsToPattern } from './solver.js';
+import { HARD_BOOK } from './book.js';
 
-const showAdsButton = document.getElementById('play-ads-btn');
 const wordCountSpan = document.getElementById('word-count');
+const bestWordSpan = document.getElementById('best-word');
+const hardModeButton = document.getElementById('hard-mode-btn');
 const wordListContainer = document.getElementById('word-list-container');
 const possibleWordsCountButton = document.getElementById('possible-words-count-btn');
-const answerSection = document.getElementById('answer-section');
 const hiddenInput = document.getElementById('hidden-input');
 
 
@@ -19,24 +15,21 @@ let activeInputRow = null;
 let currentInputPosition = 0;
 let originalWordBeforeEdit = ''; // 再編集前の単語を保存する変数
 
-let possibleWords = [];
+// 入力可能な単語（正解候補 + 入力可能単語）
+const validWords = new Set([...ANSWERS, ...ALLOWED]);
 
-// 単語リストを取得する関数
-async function fetchWordList() {
-    try {
-        const url = 'https://gist.githubusercontent.com/dracos/dd0668f281e685bad51479e5acaadb93/raw/6bfa15d263d6d5b63840a8e5b64e04b382fdb079/valid-wordle-words.txt'
-        const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        const text = await response.text();
-        possibleWords = text.split('\n').map(word => word.trim());
-        console.log('単語リストの取得が完了しました。');
-        console.log(`候補単語数: ${possibleWords.length}`);
-    } catch (error) {
-        console.error('単語リストの取得に失敗しました:', error);
-    }
-}
+// ハードモード（設定はブラウザに保存）
+let hardMode = false;
+try {
+    hardMode = localStorage.getItem('hardMode') === 'true';
+} catch (e) { /* ストレージが使えなくても動作させる */ }
+
+// モードごとの最初に入れておく単語（全正解でのシミュレーション結果から選定）
+// 通常: tarse, ハード: 定跡（book.js）の1語目
+const STARTING_WORDS = { normal: ['tarse'], hard: [HARD_BOOK.opener] };
+
+// 表示する「おすすめ」の件数
+const RANKING_DISPLAY_COUNT = 20;
 
 // マスの色を変更する関数
 function changeCellColor(cell) {
@@ -125,14 +118,10 @@ document.querySelectorAll('#input-section .cell').forEach(cell => {
 // 行の編集を開始する関数
 function startEditing(row) {
     displayPossibleWords();
-    // // 他の行が編集中ならキャンセル
-    // if (activeInputRow && activeInputRow !== row) {
-    //     cancelEditing();
-    // }
     // 再編集の場合、元の単語を保存し、fixedクラスを削除
     if (originalWordBeforeEdit.length === 0) {
         originalWordBeforeEdit = Array.from(row.children).map(cell => cell.textContent).join('');
-    };
+    }
 
     // 行の文字をクリアして、先頭から入力できるようにする
     row.querySelectorAll('.cell').forEach(cell => {
@@ -182,7 +171,7 @@ function validateAndFixWord(row) {
     });
 
     if (word.length === 5) {
-        if (possibleWords.includes(word.toLowerCase())) {
+        if (validWords.has(word.toLowerCase())) {
             // 有効な単語の場合
             row.classList.add('fixed'); // 行を固定
             row.classList.remove('editing');
@@ -243,126 +232,172 @@ function handleSoftwareKeyInput(event) {
     hiddenInput.value = ''; // inputを常に空にしておく
 }
 
-// 候補単語を絞り込む関数
-function filterPossibleWords() {
-    const inputRows = document.querySelectorAll('#input-section .row');
-    const greenLetters = [];
-    const grayLetters = [];
-    let greenLettersInPosition = Array(5).fill(null);
-    // 黄色文字とその位置を格納するオブジェクト (例: { e: [1, 4], s: [0] })
-    let yellowLettersInPosition = {};
-
-    inputRows.forEach(row => {
-        const cells = row.querySelectorAll('.cell');
-        cells.forEach((cell, index) => {
-            const letter = cell.textContent.trim().toLowerCase();
-            if (!letter) return;
-            if (cell.classList.contains('green')) {
-                greenLettersInPosition[index] = letter;
-                greenLetters.push(letter);
-            } else if (cell.classList.contains('yellow')) {
-                // 文字をキーとして、その文字が黄色だった位置(index)を配列に格納
-                if (!yellowLettersInPosition[letter]) {
-                    yellowLettersInPosition[letter] = [];
-                }
-                yellowLettersInPosition[letter].push(index);
-            } else if (cell.classList.contains('gray')) {
-                grayLetters.push(letter);
-            }
-        });
+// 確定済みの行から、入力した単語とその色（フィードバック）の履歴を作る
+function collectHistory() {
+    const history = [];
+    document.querySelectorAll('#input-section .row.fixed').forEach(row => {
+        const cells = Array.from(row.querySelectorAll('.cell'));
+        const word = cells.map(cell => cell.textContent.trim().toLowerCase()).join('');
+        if (word.length !== 5) return;
+        const colors = cells.map(cell =>
+            cell.classList.contains('green') ? 'green' :
+            cell.classList.contains('yellow') ? 'yellow' : 'gray');
+        history.push({ word, pattern: colorsToPattern(colors) });
     });
-
-    // filterを連結して、段階的に単語を絞り込む
-    let filteredWords = possibleWords.filter(word => filterByGreenLetters(word, greenLettersInPosition));
-    filteredWords = filteredWords.filter(word => filterByYellowLetters(word, yellowLettersInPosition));
-    filteredWords = filteredWords.filter(word => filterByGrayLetters(word, grayLetters, greenLetters, Object.keys(yellowLettersInPosition)));
-
-    // 空文字列を取り除く
-    filteredWords = filteredWords.filter(word => word.trim() !== '');
-
-    // 絞り込んだ単語を使いやすい単語順にソートして返す
-    filteredWords = sortWordsByVowelScore(filteredWords, false);
-    filteredWords = sortWordsByUniqueVowelCount(filteredWords, false);
-    filteredWords = sortWordsByConsonantScore(filteredWords, false);
-    filteredWords = sortWordsByUniqueConsonantCount(filteredWords, false);
-
-    return filteredWords;
+    return history;
 }
 
-// 緑色の文字（位置も正しい）に基づいて単語をフィルタリング
-function filterByGreenLetters(word, greenLettersInPosition) {
-    for (let i = 0; i < 5; i++) {
-        if (greenLettersInPosition[i] && word[i] !== greenLettersInPosition[i]) {
-            return false;
-        }
+// ランキング計算（Web Worker、使えない環境ではメインスレッドで計算）
+let solverWorker = null;
+let mainThreadSolver = null;
+let latestRequestId = 0;
+let latestRequest = null;
+
+function startSolverWorker() {
+    try {
+        solverWorker = new Worker('./solver-worker.js', { type: 'module' });
+        solverWorker.onmessage = event => renderRanking(event.data);
+        solverWorker.onerror = () => {
+            // モジュールWorker非対応などの場合はメインスレッドに切り替えて再計算
+            solverWorker = null;
+            if (latestRequest) runRanking(latestRequest);
+        };
+    } catch (e) {
+        solverWorker = null;
     }
-    return true;
 }
 
-// 黄色の文字（文字は含まれるが、位置が正しくない）に基づいて単語をフィルタリング
-// word: 候補の単語 (例: "apple")
-// yellowLettersInPosition: 黄色とマークされた文字がどの位置にあったかの情報 (例: { p: [0, 4], l: [2] })
-function filterByYellowLetters(word, yellowLettersInPosition) {
-    for (const letter in yellowLettersInPosition) {
-        // １．yellowLettersInPositionのキーがwordに含まれていなければfalseを返す
-        if (!word.includes(letter)) {
-            return false;
-        }
-        // ２．yellowLettersInPositionを利用して、該当のアルファベットがその位置に含まれていたらfalseを返す
-        for (const index of yellowLettersInPosition[letter]) {
-            if (word[index] === letter) {
-                return false;
-            }
-        }
+async function runRanking(request) {
+    if (solverWorker) {
+        solverWorker.postMessage(request);
+        return;
     }
-    return true;
-}
-// 灰色の文字（単語に含まれない）に基づいて単語をフィルタリング
-function filterByGrayLetters(word, grayLetters, greenLetters, yellowLetters) {
-    const yellowLetterSet = new Set(yellowLetters);
-    const greenLetterSet = new Set(greenLetters);
-
-    for (const letter of grayLetters) {
-        // 灰色としてマークされた文字が、緑色や黄色としても存在する場合はスキップ
-        if (greenLetterSet.has(letter) || yellowLetterSet.has(letter)) {
-            continue;
-        }
-        if (word.includes(letter)) {
-            return false;
-        }
+    if (!mainThreadSolver) {
+        const { Solver } = await import('./solver.js');
+        mainThreadSolver = new Solver();
     }
-    return true;
+    const result = mainThreadSolver.rank(request.history, { hard: request.hard, limit: 30, book: HARD_BOOK });
+    renderRanking({ id: request.id, ...result });
 }
 
-// 候補単語を画面に表示する関数
+// ハードモードの1手目は定跡の1語目を先頭にする
+function hardOpeningRanking() {
+    const opener = { word: HARD_BOOK.opener, expected: HARD_BOOK.expected, isCandidate: ANSWERS.includes(HARD_BOOK.opener), fromBook: true };
+    return [opener, ...OPENING_RANKING_HARD.filter(r => r.word !== opener.word)];
+}
+
+// 候補単語とおすすめランキングを画面に表示する関数
 function displayPossibleWords() {
-    const filteredWords = filterPossibleWords();
-    wordCountSpan.textContent = `see ${filteredWords.length} possible words`;
+    const history = collectHistory();
+    const id = ++latestRequestId;
+    if (history.length === 0) {
+        // 1手目は事前計算済みのランキングを使う
+        latestRequest = null;
+        renderRanking({ id, candidates: ANSWERS, ranking: hardMode ? hardOpeningRanking() : OPENING_RANKING });
+        return;
+    }
+    bestWordSpan.textContent = 'thinking...';
+    latestRequest = { id, history, hard: hardMode };
+    runRanking(latestRequest);
+}
 
+function createWordItem(label, note, word) {
+    const wordItem = document.createElement('div');
+    wordItem.classList.add('word-item');
+    wordItem.dataset.word = word;
+    const labelSpan = document.createElement('span');
+    labelSpan.textContent = label;
+    wordItem.appendChild(labelSpan);
+    if (note) {
+        const noteSpan = document.createElement('span');
+        noteSpan.classList.add('word-note');
+        noteSpan.textContent = note;
+        wordItem.appendChild(noteSpan);
+    }
+    return wordItem;
+}
+
+function createListHeader(text) {
+    const header = document.createElement('div');
+    header.classList.add('word-list-header');
+    header.textContent = text;
+    return header;
+}
+
+function renderRanking({ id, candidates, ranking }) {
+    // 古いリクエストの結果は捨てる
+    if (id !== latestRequestId) return;
+
+    wordCountSpan.textContent = `see ${candidates.length} possible words`;
     wordListContainer.innerHTML = '';
-    filteredWords.forEach(word => {
-        const wordItem = document.createElement('div');
-        wordItem.textContent = word;
-        wordItem.classList.add('word-item');
-        wordListContainer.appendChild(wordItem);
+
+    if (candidates.length === 0) {
+        bestWordSpan.textContent = 'no match';
+        wordListContainer.appendChild(createListHeader('no possible words - check the colors'));
+        return;
+    }
+    bestWordSpan.textContent = `next: ${ranking[0].word}`;
+
+    // おすすめ順（数値は「この単語を含めて平均あと何手で解けるか」に、5手以上かかる展開への減点を加えたスコア。★は正解の可能性あり）
+    wordListContainer.appendChild(createListHeader('best next guesses (score ≈ avg. guesses to solve)'));
+    ranking.slice(0, RANKING_DISPLAY_COUNT).forEach((r, i) => {
+        const note = `${r.fromBook ? 'book ' : ''}${r.expected.toFixed(2)}${r.isCandidate ? ' ★' : ''}`;
+        wordListContainer.appendChild(createWordItem(`${i + 1}. ${r.word}`, note, r.word));
     });
 
-    // 候補の数に応じて高さを調整し、広告ボタンの表示を切り替える
-    // if (0 < filteredWords.length && filteredWords.length < 3) {
-    //     console.log('single-word');
-    //     showAdsButton.classList.remove('hidden');
-    //     answerSection.style.setProperty('--answer-height', '18%');
-    // } else if (0 < filteredWords.length && filteredWords.length < 5) {
-    //     console.log('single-word');
-    //     showAdsButton.classList.remove('hidden');
-    //     answerSection.style.setProperty('--answer-height', '38%');
-
-    // } else {
-    //     console.log('multi-word');
-    //     showAdsButton.classList.add('hidden');
-    //     answerSection.style.setProperty('--answer-height', '59%');
-    // }
+    wordListContainer.appendChild(createListHeader(`possible answers (${candidates.length})`));
+    candidates.forEach(word => {
+        wordListContainer.appendChild(createWordItem(word, '', word));
+    });
 }
+
+// ハードモードの表示を更新
+function updateHardModeButton() {
+    hardModeButton.textContent = `hard mode: ${hardMode ? 'ON' : 'OFF'}`;
+    hardModeButton.classList.toggle('on', hardMode);
+}
+
+hardModeButton.addEventListener('click', () => {
+    hardMode = !hardMode;
+    try {
+        localStorage.setItem('hardMode', String(hardMode));
+    } catch (e) { /* 保存できなくても続行 */ }
+    updateHardModeButton();
+    // まだ色を付けていなければ、初期単語を新しいモードのものに差し替える
+    const previousWords = STARTING_WORDS[hardMode ? 'normal' : 'hard'];
+    if (!activeInputRow && isUntouchedStartingBoard(previousWords)) {
+        fillStartingWords();
+    }
+    displayPossibleWords();
+});
+
+// 盤面が初期単語（すべて灰色）のままかどうか
+function isUntouchedStartingBoard(words) {
+    return Array.from(document.querySelectorAll('#input-section .row')).every((row, i) => {
+        const cells = Array.from(row.querySelectorAll('.cell'));
+        const text = cells.map(cell => cell.textContent.trim().toLowerCase()).join('');
+        const colored = cells.some(cell => cell.classList.contains('yellow') || cell.classList.contains('green'));
+        return text === (words[i] || '') && !colored;
+    });
+}
+
+// 盤面を空にして、現在のモードの初期単語を入れる
+function fillStartingWords() {
+    const words = STARTING_WORDS[hardMode ? 'hard' : 'normal'];
+    document.querySelectorAll('#input-section .row').forEach((row, i) => {
+        const word = words[i] || '';
+        row.classList.remove('fixed', 'editing');
+        row.querySelectorAll('.cell').forEach((cell, j) => {
+            cell.textContent = word[j] || '';
+            cell.classList.remove('gray', 'yellow', 'green');
+            if (word) cell.classList.add('gray');
+        });
+        // 初期単語が入っている行は固定状態にする
+        if (word) row.classList.add('fixed');
+    });
+    updateSolutionSection();
+}
+
 function addSelectedWordToInput(word) {
     // 編集中の行がなければ、背景が白くなっている行を編集モードにする
     const rows = document.querySelectorAll('#input-section .row');
@@ -392,13 +427,6 @@ function addSelectedWordToInput(word) {
     validateAndFixWord(activeInputRow);
 }
 
-// 解答セクションの高さを設定する関数
-function setAnswerSectionHeight() {
-    const height = '--height'
-    const actualHeight = wordListContainer.offsetHeight;
-    // possibleWordsCountButton.style.setProperty(height, `${actualHeight}px`);
-    answerSection.style.setProperty('--answer-height', `${actualHeight}px`);
-}
 // 候補リストの表示/非表示を切り替える
 possibleWordsCountButton.addEventListener('click', (event) => {
     possibleWordsCountButton.classList.add('hidden');
@@ -407,38 +435,14 @@ possibleWordsCountButton.addEventListener('click', (event) => {
 // 候補リストの表示/非表示を切り替える
 wordListContainer.addEventListener('click', (event) => {
     // クリックされた要素が単語アイテム(.word-item)の場合
-    if (event.target.classList.contains('word-item')) {
-        const selectedWord = event.target.textContent;
-        addSelectedWordToInput(selectedWord);
+    const wordItem = event.target.closest('.word-item');
+    if (wordItem) {
+        addSelectedWordToInput(wordItem.dataset.word);
     }
     // 単語を選択した場合でも、背景をクリックした場合でもリストを非表示にする
     wordListContainer.classList.add('hidden');
     possibleWordsCountButton.classList.remove('hidden');
 });
-
-// 広告を表示する関数
-function showFullScreenAd() {
-    alert('全画面広告が表示されます！'); // 実際の広告SDKのコードに置き換えます
-    
-    // 広告の後の画面に切り替える
-    showThanksScreen();
-}
-
-// 広告後の画面を表示する関数
-function showThanksScreen() {
-    const container = document.querySelector('.container');
-    container.innerHTML = `
-        <div class="end-screen">
-            <img src="https://i.ibb.co/L5hYwK6/thanks-for-playing.png" alt="Thanks for playing" style="width: 250px; margin-bottom: 20px;">
-            <button id="solve-again-btn">solve wordle again</button>
-        </div>
-    `;
-
-    // 「solve wordle again」ボタンのイベントリスナー
-    document.getElementById('solve-again-btn').addEventListener('click', () => {
-        window.location.reload();
-    });
-}
 
 // 解答セクションを更新する関数
 function updateSolutionSection() {
@@ -483,35 +487,22 @@ function updateSolutionSection() {
 
 // グリッドの初期状態を設定する関数
 function initializeGrid() {
-    document.querySelectorAll('#input-section .row').forEach(row => {
-        const hasText = Array.from(row.children).some(cell => cell.textContent.trim() !== '');
-        if (hasText) {
-            // 初期単語が入っている行を固定状態にする
-            row.classList.add('fixed');
-            row.querySelectorAll('.cell').forEach(cell => {
-                // セルに文字が含まれていれば 'gray' クラスを追加
-                cell.classList.add('gray');
-            });
-        }
-    });
+    fillStartingWords();
     // 初期状態に基づいて候補単語と解答サマリーを更新
     displayPossibleWords();
     updateSolutionSection();
-
-    // 候補単語を子音スコアの高い順にソートして表示
-    const sortedByConsonant = sortWordsByConsonantScore(possibleWords);
-    console.log('Words sorted by consonant score (desc):', sortedByConsonant.slice(0, 10)); // 上位10件を表示
 }
 
-// アプリケーション起動時に単語リストを取得
-document.addEventListener('DOMContentLoaded', async () => {
+// アプリケーション起動時の初期化
+document.addEventListener('DOMContentLoaded', () => {
     // スマホでの文字列選択を無効にする
     document.body.style.webkitUserSelect = 'none';
     document.body.style.mozUserSelect = 'none';
     document.body.style.msUserSelect = 'none';
     document.body.style.userSelect = 'none';
 
-    await fetchWordList(); // 単語リストの取得を待つ
+    startSolverWorker();   // ランキング計算用のWorkerを起動する
+    updateHardModeButton();
     initializeGrid();      // グリッドを初期化する
 
     // 物理キーボード入力イベントリスナーを追加

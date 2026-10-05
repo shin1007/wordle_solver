@@ -1,13 +1,17 @@
-const CACHE_NAME = 'wordle-solver-v1';
+const CACHE_NAME = 'wordle-solver-v2';
 const urlsToCache = [
   '/',
   '/index.html',
   '/style.css',
   '/script.js',
+  '/words.js',
+  '/opening.js',
+  '/book.js',
+  '/solver.js',
+  '/solver-worker.js',
   '/manifest.json',
-  '/icon-192.png',
-  '/icon-512.png',
-  'https://gist.githubusercontent.com/dracos/dd0668f281e685bad51479e5acaadb93/raw/6bfa15d263d6d5b63840a8e5b64e04b382fdb079/valid-wordle-words.txt'
+  '/icons/192.png',
+  '/icons/512.png'
 ];
 
 self.addEventListener('install', event => {

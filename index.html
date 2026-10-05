@@ -27,25 +27,25 @@
     <div class="container">
         <div id="input-section">
             <div class="row">
-                <div class="cell">s</div>
-                <div class="cell">l</div>
-                <div class="cell">a</div>
-                <div class="cell">t</div>
-                <div class="cell">e</div>
+                <div class="cell"></div>
+                <div class="cell"></div>
+                <div class="cell"></div>
+                <div class="cell"></div>
+                <div class="cell"></div>
             </div>
             <div class="row">
-                <div class="cell">c</div>
-                <div class="cell">r</div>
-                <div class="cell">o</div>
-                <div class="cell">n</div>
-                <div class="cell">y</div>
+                <div class="cell"></div>
+                <div class="cell"></div>
+                <div class="cell"></div>
+                <div class="cell"></div>
+                <div class="cell"></div>
             </div>
             <div class="row">
-                <div class="cell">h</div>
-                <div class="cell">u</div>
-                <div class="cell">m</div>
-                <div class="cell">i</div>
-                <div class="cell">d</div>
+                <div class="cell"></div>
+                <div class="cell"></div>
+                <div class="cell"></div>
+                <div class="cell"></div>
+                <div class="cell"></div>
             </div>
             <div class="row">
                 <div class="cell"></div>
@@ -80,22 +80,22 @@
                     <div class="cell yellow"></div>
                 </div>
             </div>
+            <button id="hard-mode-btn" class="hard-mode-btn">hard mode: OFF</button>
             <div id="answer-section">
                 <button id="possible-words-count-btn" class="possible-words-count-btn">
+                    <span id="best-word"></span>
                     <span id="word-count">see 0 possible words</span>
                 </button>
                 <div id="word-list-container" class="hidden">
                 </div>
             </div>
-            <button id="play-ads-btn" class="play-ads-btn hidden">play ad when solved</button>
         </div>
     </div>
 
     <!-- スマホのキーボード表示用の非表示input要素 -->
     <!-- 参考：https://beanslabo.co.jp/techblog/7432/#subHeading02-03 -->
-    <input type="text" id="hidden-input" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false" type="url" inputmode="email">
+    <input type="text" id="hidden-input" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false" inputmode="email">
     <!-- type="module" を追加して、ESモジュールとしてスクリプトを読み込む -->
-    <script src="letterRanking.js" type="module"></script>
     <script src="script.js" type="module"></script>
 </body>
 
